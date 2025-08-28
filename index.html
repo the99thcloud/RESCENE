@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 RESCENE 1st FAN-CON in TAIPEI [RE:MIND] 應援企劃書</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Lavender Dream (Restored) -->
+    <!-- Application Structure Plan: The application is designed as a single-page, scrollable website with a fixed navigation bar. This structure is superior to a static PDF for a proposal, as it allows stakeholders (like event organizers or the artist's agency) to quickly navigate to key sections like the budget, timeline, or specific event details using the sticky navigation. The flow is logical: starting with the core concept, moving to detailed on-site and backstage plans, and concluding with logistics like fundraising and scheduling. This task-oriented design prioritizes ease of access to critical information for decision-makers. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Budget Allocation -> Goal: Inform -> Viz/Presentation Method: Donut Chart -> Interaction: Hover to see details -> Justification: Provides an immediate, easy-to-understand visual breakdown of financial priorities, which is more impactful than a simple table. -> Library/Method: Chart.js/Canvas.
+        - Report Info: Project Timeline -> Goal: Organize -> Viz/Presentation Method: Interactive Vertical Timeline -> Interaction: Scroll-based animations and clear visual separation of phases. -> Justification: Transforms a dry list of dates into an engaging, easy-to-follow project plan, highlighting key milestones. -> Library/Method: HTML/CSS/Tailwind.
+        - Report Info: On-site Support Details -> Goal: Organize/Inform -> Viz/Presentation Method: Tabbed Interface -> Interaction: Click tabs to switch content -> Justification: Neatly organizes multiple complex event plans (hand banner, special song, encore) into a compact space, preventing cognitive overload for the reader. -> Library/Method: Vanilla JS.
+        - Report Info: Backstage Food Menu -> Goal: Inform -> Viz/Presentation Method: Interactive Cards -> Interaction: Hover/Click for details -> Justification: Presents the catering plan in a visually appealing, organized manner that reflects the care and quality of the support. -> Library/Method: HTML/CSS/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F5F3F7; /* Light Lavender White */
+            color: #4A4A4A;
+            background-image: radial-gradient(circle at top left, rgba(233, 227, 237, 0.8) 0%, transparent 40%), radial-gradient(circle at bottom right, rgba(217, 209, 224, 0.7) 0%, transparent 50%);
+            background-attachment: fixed;
+            padding-top: 4rem; /* Added padding for fixed navbar */
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .text-accent-dark { color: #6F5F80; }
+        .text-accent { color: #A08FB0; }
+        .bg-accent-light { background-color: #E9E3ED; }
+        .bg-accent { background-color: #A08FB0; }
+        .border-accent { border-color: #A08FB0; }
+        .nav-link {
+            padding: 8px 16px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .nav-link.active, .nav-link:hover {
+            background-color: #A08FB0;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(160, 143, 176, 0.3);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #6F5F80;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(160, 143, 176, 0.15);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(160, 143, 176, 0.2);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #A08FB0;
+            border: 4px solid #F5F3F7;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: auto;
+            min-height: 300px;
+        }
+
+        /* --- HIDE PRINT-ONLY ELEMENTS ON SCREEN --- */
+        .print-only {
+            display: none;
+        }
+        
+        /* --- UPDATED PRINT STYLES --- */
+        @media print {
+            @page {
+                size: A4;
+                margin: 0; /* 透過 padding 控制邊界 */
+            }
+            
+            html, body {
+                padding-top: 0 !important;
+                background-color: #F5F3F7 !important;
+                background-image: radial-gradient(circle at top left, rgba(233, 227, 237, 0.8) 0%, transparent 40%), radial-gradient(circle at bottom right, rgba(217, 209, 224, 0.7) 0%, transparent 50%) !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                width: 100%;
+                height: auto;
+            }
+
+            /* 隱藏不需列印的元件 */
+            nav, footer, .print-button, #mobile-menu-button, #mobile-menu, #hero {
+                display: none !important;
+            }
+
+            /* 主要內容容器調整 */
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                space-y: 0 !important;
+            }
+            
+            /* 通用元件列印樣式 */
+            .card {
+                box-shadow: 0 8px 32px 0 rgba(160, 143, 176, 0.15) !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
+                background-color: rgba(255, 255, 255, 0.8) !important;
+                backdrop-filter: blur(12px) !important;
+                -webkit-backdrop-filter: blur(12px) !important;
+                margin-bottom: 0; /* 移除卡片間距 */
+            }
+            
+            .section-title, h1, h2, h3, h4, p, li, span, strong, .text-accent-dark, .text-gray-700, .text-gray-600, .text-gray-800, .text-gray-500, .text-accent {
+                color: #4A4A4A !important;
+            }
+            
+            .timeline-item::before {
+                background-color: #A08FB0 !important;
+                border-color: #F5F3F7 !important;
+            }
+            
+            .chart-container { 
+                padding: 1rem;
+            }
+
+            /* --- 頁面佈局與分頁邏輯 --- */
+
+            /* 顯示僅供列印的標題 */
+            .print-only {
+                display: block !important;
+            }
+
+            /* 定義可列印的頁面區塊 */
+            .print-page {
+                padding: 0.75in !important;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* 封面頁: 垂直與水平置中於第一頁 */
+            #cover-page.print-page {
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: center !important;
+                align-items: center !important;
+                height: 100vh; /* 佔滿整頁高度 */
+            }
+            #cover-page .card {
+                min-height: 0 !important;
+                width: 100%;
+            }
+
+            /* 除了第一頁(封面)，其他頁面都在頂端強制換頁 */
+            .print-page:not(#cover-page) {
+                page-break-before: always;
+            }
+            
+            /* 讓時程規劃的項目盡量保持完整 */
+            .timeline-item {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header id="navbar" class="bg-white/70 backdrop-blur-lg fixed top-0 left-0 right-0 z-50 shadow-sm h-16">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <a href="#hero" class="block">
+                    <img src="https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=2,width=150/rescene-official/e8f55769-35f4-4135-b326-99d3fdc2c0c4/ec5b4ff4-4b44-4579-9f5d-fd51807768a6/ori.png" alt="RESCENE Logo" class="h-8">
+                </a>
+                <div class="hidden md:flex items-center space-x-2">
+                    <a data-target="cover-page" class="nav-link active">封面</a>
+                    <a data-target="overview" class="nav-link">企劃總覽</a>
+                    <a data-target="on-site" class="nav-link">現場應援</a>
+                    <a data-target="backstage" class="nav-link">後台應援</a>
+                    <a data-target="fundraising" class="nav-link">募資計畫</a>
+                    <a data-target="timeline" class="nav-link">執行時程</a>
+                    <a onclick="window.print()" class="nav-link print-button flex items-center space-x-2 bg-accent-light text-accent-dark hover:bg-accent hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+                        <span>列印</span>
+                    </a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-accent-dark focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 pb-4">
+            <a data-target="cover-page" class="block py-2 px-4 text-sm nav-link active text-center">封面</a>
+            <a data-target="overview" class="block py-2 px-4 text-sm nav-link text-center">企劃總覽</a>
+            <a data-target="on-site" class="block py-2 px-4 text-sm nav-link text-center">現場應援</a>
+            <a data-target="backstage" class="block py-2 px-4 text-sm nav-link text-center">後台應援</a>
+            <a data-target="fundraising" class="block py-2 px-4 text-sm nav-link text-center">募資計畫</a>
+            <a data-target="timeline" class="block py-2 px-4 text-sm nav-link text-center">執行時程</a>
+            <a onclick="window.print()" class="block py-2 px-4 text-sm nav-link print-button text-center">列印/存成PDF</a>
+        </div>
+    </header>
+
+    <section id="hero" class="h-screen flex flex-col justify-end items-center bg-cover bg-center -mt-16 pb-20" style="background-image: url('https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=1,f=auto,width=1360/rescene-official/df14c459-2b0f-4531-b3a8-e7bfb2ddd32a/0e4b281f-3bcc-4e70-83fd-6a61266dc367/ori.jpg');">
+        <div class="text-center p-8 rounded-lg bg-black/20 backdrop-blur-sm">
+             <img src="https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=2,width=150/rescene-official/e8f55769-35f4-4135-b326-99d3fdc2c0c4/ec5b4ff4-4b44-4579-9f5d-fd51807768a6/ori.png" alt="RESCENE Logo" class="h-12 mx-auto mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+            <p class="text-lg md:text-xl lg:text-2xl mt-4 text-white font-semibold" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">1st FAN-CON in TAIPEI [RE:MIND]</p>
+            <p class="mt-2 text-white/90" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">聯合應援企劃書</p>
+        </div>
+    </section>
+
+    <main class="max-w-6xl mx-auto p-4 md:p-8">
+        
+        <div class="print-page space-y-24" id="cover-page">
+            <section class="scroll-mt-20 p-0">
+                 <div class="card min-h-[80vh] flex flex-col justify-center items-center text-center">
+                    <div class="py-8">
+                        <img src="https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=2,width=150/rescene-official/e8f55769-35f4-4135-b326-99d3fdc2c0c4/ec5b4ff4-4b44-4579-9f5d-fd51807768a6/ori.png" alt="RESCENE Logo" class="h-16 mx-auto">
+                        <h1 class="text-4xl md:text-5xl font-bold font-serif text-accent-dark mt-8">1st FAN-CON in TAIPEI</h1>
+                        <h2 class="text-3xl md:text-4xl font-bold font-serif text-accent-dark mt-2">[RE:MIND]</h2>
+                        <div class="my-12 border-t-2 border-accent w-1/4 mx-auto"></div>
+                        <p class="text-3xl md:text-4xl font-serif text-gray-700">聯合應援企劃書</p>
+                        <p class="mt-8 text-lg text-gray-600">提案單位：RESCENE Taipei Fan Union</p>
+                        <p class="mt-2 text-lg text-gray-600">提案日期：2025年8月28日</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="print-page space-y-24">
+            <section id="overview" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif">I. 企劃總覽</h2>
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif">核心概念：以香氣喚醒，以回憶連結</h3>
+                    <p class="text-lg leading-relaxed text-gray-800">
+                        本次應援企劃的核心願景，不僅是為 RESCENE 首次台北 FAN-CON 提供支持，更是要將活動打造成一場深刻的、多感官的「普魯斯特效應」體驗。企劃將緊密圍繞 RESCENE 的核心概念——「香氣 (Scent)」與「場景 (Scene)」，並與 FAN-CON 主題「RE:MIND」及粉絲名「REMINE」進行深度連結。我們的目標是將粉絲的愛與支持，轉化為一種獨特、溫暖、專屬於台北的「香氣」，讓 RESCENE 在踏上舞台的每一刻，都能聞到、看到、感受到這份深刻的連結，共同創造一個在未來能不斷被「RE:MIND」的完美場景。
+                    </p>
+                </div>
+            </section>
+        </div>
+
+        <div class="print-page space-y-24">
+            <section id="on-site" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif">II. 現場應援企劃</h2>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">傳遞我們的話語：單一款全場手幅 (規劃)</h3>
+                    <p class="mb-4 text-gray-700">為集中資源並確保訊息傳遞的統一性，本次規劃製作一款設計精美、訊息深刻的主手幅於全場發放。</p>
+                    <ul class="space-y-4 list-disc list-inside text-gray-700">
+                        <li><strong>正面文案 (暫定):</strong> <span class="font-semibold text-gray-800">이 순간의 향기, 타이베이가 주는 기억</span><br><span class="text-sm text-gray-500">(翻譯: 此刻的香氣，是台北獻上的記憶)</span></li>
+                        <li class="space-y-2"><strong>背面文案 (暫定):</strong> 
+                            <p class="text-sm"><strong class="font-semibold text-gray-800">繁中:</strong> 應援影片播放結束後，請舉起寫有韓文的正面。安可時，請與我們一同清唱 "LOVE ATTACK" 副歌。</p>
+                            <p class="text-sm"><strong class="font-semibold text-gray-800">한글:</strong> 응원 영상이 끝난 후, 앞면(한국어)을 들어주세요. 앵콜 시에는 'LOVE ATTACK' 후렴구를 함께 불러주세요.</p>
+                            <p class="text-sm"><strong class="font-semibold text-gray-800">日本語:</strong> 応援映像が終わったら、表面（韓国語）を上げてください。アンコールでは「LOVE ATTACK」のサビを一緒に歌ってください。</p>
+                            <p class="text-sm"><strong class="font-semibold text-gray-800">English:</strong> After the fan video, please raise the front (Korean side). For the encore, please sing the chorus of "LOVE ATTACK" with us.</p>
+                        </li>
+                        <li><strong>預計設計風格:</strong> 以「綻放的花」或「香水瓶」為視覺元素，採用柔和色系。</li>
+                        <li><strong>預計材質規格:</strong> 採用霧面不反光相紙或布質，尺寸估計約 45cm x 15cm，避免舞台燈光反射。</li>
+                        <li><strong>規劃使用時機:</strong> <span class="font-semibold text-gray-800">應援影片播放結束後</span> (及 Talking、大合照環節)</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+            <section class="p-0">
+                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">回憶的香頌：歌曲 "Deja Vu" 綠色光海 (規劃)</h3>
+                    <p class="mb-4 text-gray-700">為確保所有粉絲都能輕鬆參與並專注於表演，規劃採用經典且效果卓越的玻璃紙燈海應援。綠色呼應 "Deja Vu" MV 中的青草與自然元素，營造清新夢幻的氛圍。</p>
+                    <ol class="space-y-3 list-decimal list-inside text-gray-700">
+                        <li><strong>事前準備:</strong> 預計入場時，向每位粉絲發放一張綠色玻璃紙。</li>
+                        <li><strong>觸發時機:</strong> 規劃當 "Deja Vu" 唱到 Bridge 段落時，全場粉絲 <span class="font-semibold text-gray-800">統一關閉官方手燈</span>。</li>
+                        <li><strong>點亮回憶:</strong> 關閉手燈同時，開啟手機手電筒，並將綠色玻璃紙覆蓋在鏡頭上，共同創造一片靜謐的「螢光森林」。</li>
+                        <li><strong>優點:</strong> 操作最為簡單，視覺效果集中壯觀，粉絲無需分心操作手機，能完全沉浸在音樂與氛圍中。</li>
+                    </ol>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+            <section class="p-0">
+                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">呼喚我們的香氣：特別安可應援 (規劃)</h3>
+                    <p class="mb-4 text-gray-700">為創造更具意義的安可環節，規劃由全場共同清唱 RESCENE 的熱門歌曲 "LOVE ATTACK" 的副歌部分。</p>
+                    <p class="text-gray-700"><strong>理由:</strong> "LOVE ATTACK" 充滿活力與記憶點，副歌旋律朗朗上口，適合全場大合唱，能將活動氣氛推向最高潮，以最熱情的方式呼喚她們重返舞台。</p>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+            <section class="p-0">
+                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <div class="card">
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">影片應援：REMINE 的心意膠卷 (方案討論)</h3>
+                    <p class="mb-4 text-gray-700">為向 RESCENE 傳達台灣 REMINE 的心意，我們希望能製作一支應援影片於場內播放。影片的最終風格與呈現方式會由剪輯者把關，但內容歡迎大家一起集思廣益，這裡提供以下幾種方案作為討論參考：</p>
+                    <div class="space-y-4">
+                        <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
+                            <h4 class="font-bold text-accent-dark">提案A：訊息照片輪播 (感性溫馨)</h4>
+                            <p class="mt-1 text-sm text-gray-700">募集粉絲手持「手寫應援訊息」的照片，集結成溫馨的電子相冊影片。</p>
+                        </div>
+                        <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
+                            <h4 class="font-bold text-accent-dark">提案B：粉絲挑戰影片 (活潑有趣)</h4>
+                            <p class="mt-1 text-sm text-gray-700">募集粉絲參與 "LOVE ATTACK" 副歌舞蹈挑戰的短影片，剪輯成充滿活力的快節奏影片。</p>
+                        </div>
+                         <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
+                            <h4 class="font-bold text-accent-dark">提案C：「我們的場景」景點影片</h4>
+                            <p class="mt-1 text-sm text-gray-700">募集粉絲在台灣各地景點，手持「歡迎RESCENE」標語的短片，剪輯成一部介紹台灣之美的歡迎影片。</p>
+                        </div>
+                         <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
+                            <h4 class="font-bold text-accent-dark">提案D：粉絲創作輪播</h4>
+                            <p class="mt-1 text-sm text-gray-700">募集粉絲為RESCENE創作的繪圖、手寫字等藝術作品，製作成一部展現粉絲才華的藝術 slideshow。</p>
+                        </div>
+                         <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
+                            <h4 class="font-bold text-accent-dark">提案E：感謝話語錄音合輯</h4>
+                            <p class="mt-1 text-sm text-gray-700">募集粉絲錄製3-5秒想對RESCENE說的話，將音檔集結，搭配官方MV或照片畫面，製作成感性的告白影片。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="print-page space-y-24">
+            <section id="backstage" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif">III. 後台應援</h2>
+                <div class="card">
+                     <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif text-center">預計方案</h3>
+                     <p class="text-gray-700">為向藝人與團隊表達最誠摯的歡迎與感謝，我們預計規劃餐飲及特色獻禮的後台應援。所有項目的具體內容與執行細節，將在募資達到第二階段目標後，與主辦單位及經紀方進行密切溝通，並依其需求與規定進行最終確認與調整，確保應援活動能以最貼心、最完善的方式呈現。</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="print-page space-y-24">
+            <section id="fundraising" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif">IV. 募資計畫</h2>
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif">金額細估與階段式募資</h3>
+                    <p class="mb-6 text-gray-700">為確保計畫執行順利並提高資金運用的透明度，我們將募資分為兩階段。以場館人數450人為基礎進行初步估算：</p>
+                    <div class="mb-6">
+                        <h4 class="font-bold text-lg text-accent-dark">第一階段：核心現場應援 (目標估算：NT$ 18,000)</h4>
+                        <p class="text-sm text-gray-600">此階段為必要應援項目，確保所有入場粉絲都能參與。</p>
+                        <ul class="list-disc list-inside mt-2 text-gray-700">
+                            <li>全場手幅 (估算450份 x NT$25/份) = NT$ 11,250</li>
+                            <li>綠色玻璃紙 (估算450份 x NT$5/份) = NT$ 2,250</li>
+                            <li>行政與雜支 (預估印刷、物流等) = NT$ 4,500</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg text-accent-dark">第二階段：後台支援與募資回饋品 (目標估算：NT$ 42,000)</h4>
+                        <p class="text-sm text-gray-600">第一階段達標後規劃開啟。此階段為選擇性追加項目，旨在提供更完善的支持。</p>
+                        <ul class="list-disc list-inside mt-2 text-gray-700">
+                            <li>後台餐飲與特色獻禮 (預算) = NT$ 25,000</li>
+                            <li>募資回饋品製作 (預算) = NT$ 15,000</li>
+                            <li>追加雜支 (預估) = NT$ 2,000</li>
+                        </ul>
+                    </div>
+                    <p class="mt-6 text-sm text-gray-500">*所有款項將公開透明，並於活動結束後公布詳細財報。集資若有餘額，將全數以RESCENE名義捐贈予公益團體，或保留至下次專場使用，屆時會再進行公告與投票。</p>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+            <section class="p-0">
+                <h2 class="section-title font-serif print-only">IV. 募資計畫</h2>
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif">總預算細項 (估算)</h3>
+                     <div class="space-y-4">
+                        <div>
+                            <h4 class="font-bold text-lg text-accent-dark">第一階段 (總計: NT$ 18,000)</h4>
+                            <ul class="mt-2 space-y-2 text-gray-700">
+                                <li class="flex justify-between border-b pb-1"><span>全場手幅 (450份)</span><span class="font-semibold">NT$ 11,250</span></li>
+                                <li class="flex justify-between border-b pb-1"><span>綠色玻璃紙 (450份)</span><span class="font-semibold">NT$ 2,250</span></li>
+                                <li class="flex justify-between"><span>行政與雜支</span><span class="font-semibold">NT$ 4,500</span></li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-accent-dark">第二階段 (總計: NT$ 42,000)</h4>
+                             <ul class="mt-2 space-y-2 text-gray-700">
+                                <li class="flex justify-between border-b pb-1"><span>後台餐飲與特色獻禮</span><span class="font-semibold">NT$ 25,000</span></li>
+                                <li class="flex justify-between border-b pb-1"><span>募資回饋品製作</span><span class="font-semibold">NT$ 15,000</span></li>
+                                <li class="flex justify-between"><span>追加雜支</span><span class="font-semibold">NT$ 2,000</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+            <section class="p-0">
+                <h2 class="section-title font-serif print-only">IV. 募資計畫</h2>
+                <div class="card">
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif">預算總覽 (估算)</h3>
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="print-page space-y-24">
+            <section id="timeline" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif">V. 執行時程規劃</h2>
+                <div class="card">
+                    <div class="relative border-l-2 border-accent pl-8 py-4">
+                        <div class="timeline-item mb-8">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段一：專案啟動與募資預熱 (暫定 9/1 - 9/7)</h4>
+                            <p class="text-sm text-gray-500">第一週</p>
+                            <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>9/1:</strong> 預計正式發布應援企劃公告，同步啟動第一階段募資。</li>
+                                <li><strong>9/3:</strong> 預計公布手幅、影片素材的募集辦法與規格。</li>
+                                <li><strong>9/5:</strong> 規劃發布應援懶人包，加強宣傳。</li>
+                                <li><strong>9/7:</strong> 預計第一次募資進度回報，感謝初期參與者。</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item mb-8">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段二：設計定稿與物料下訂 (暫定 9/8 - 9/14)</h4>
+                            <p class="text-sm text-gray-500">第二週</p>
+                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>9/9:</strong> 規劃手幅設計稿內部投票/決選，並進行最終修改。</li>
+                                <li><strong>9/11:</strong> 預計確認手幅與玻璃紙廠商，正式下單製作、採購。</li>
+                                <li><strong>9/14:</strong> 預計第二次募資進度回報，並公布手幅最終設計圖。</li>
+                                <li>規劃持續收集應援影片投稿素材。</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item mb-8">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段三：影片製作與二階規劃 (暫定 9/15 - 9/21)</h4>
+                            <p class="text-sm text-gray-500">第三週</p>
+                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>9/15:</strong> 應援影片素材募集暫定截止。</li>
+                                <li><strong>9/16:</strong> 影片剪輯製作預計啟動。</li>
+                                <li><strong>9/18:</strong> 若一階募資達標，規劃啟動第二階段募資計畫。</li>
+                                <li><strong>9/20:</strong> 預計開始與主辦方接洽後台應援細節（若二階啟動）。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <div class="print-page space-y-24">
+             <section class="p-0">
+                <h2 class="section-title font-serif print-only">V. 執行時程規劃 (續)</h2>
+                <div class="card">
+                    <div class="relative border-l-2 border-accent pl-8 py-4">
+                        <div class="timeline-item mb-8">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段四：宣傳衝刺與最終確認 (暫定 9/22 - 9/28)</h4>
+                            <p class="text-sm text-gray-500">第四週</p>
+                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>9/23:</strong> 預計發布現場應援教學圖文/影片，包含手幅使用、安可教唱等。</li>
+                                <li><strong>9/25:</strong> 應援影片初剪預計完成，提交主辦方審核。</li>
+                                <li><strong>9/27:</strong> 預計確認所有應援物到貨，進行品質檢查與分裝。</li>
+                                <li><strong>9/28:</strong> 全體募資暫定截止，準備財務初步整理。</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item mb-8">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段五：現場準備與執行 (暫定 9/29 - 10/3)</h4>
+                            <p class="text-sm text-gray-500">活動週</p>
+                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>9/30:</strong> 規劃招募現場小幫手，並發布最終場內應援流程提醒。</li>
+                                <li><strong>10/2:</strong> 預計遞交後台應援禮品與餐點；規劃場佈組領取應援物。</li>
+                                <li><strong>10/3 (D-DAY):</strong> 規劃全體人員就位，發放應援物，執行所有現場應援活動！</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-item">
+                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段六：結案與成果回報 (活動後)</h4>
+                            <p class="text-sm text-gray-500">活動後</p>
+                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
+                                <li><strong>10/6:</strong> 預計發布應援活動成功之後記與感謝文。</li>
+                                <li><strong>10/12:</strong> 預計公布完整財務明細收支表。</li>
+                                <li><strong>10/19:</strong> 規劃完成募資回饋品寄送，並處理剩餘款項。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <footer class="bg-accent-light mt-16 py-12">
+        <div class="max-w-6xl mx-auto text-center text-accent-dark">
+            <p class="font-bold font-serif text-xl">讓這一刻，成為永恆的香氣</p>
+            <p class="text-sm mt-4 opacity-70">© 2025 RESCENE Taipei Fan Union. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chart.js initialization
+            const chartCtx = document.getElementById('budgetChart').getContext('2d');
+            const budgetChart = new Chart(chartCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['後台支援', '現場應援物', '募資回饋品', '行政雜支'],
+                    datasets: [{
+                        label: '預算分配',
+                        data: [41.7, 22.5, 25, 10.8], // 25000, 13500, 15000, 6500 -> 60000 total
+                        backgroundColor: [
+                            '#A08FB0',
+                            '#B8A9C9',
+                            '#D9D1E0',
+                            '#E9E3ED'
+                        ],
+                        borderColor: '#F5F3F7',
+                        borderWidth: 4,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#4A4A4A',
+                                font: {
+                                    family: "'Noto Sans TC', sans-serif",
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed !== null) { 
+                                        let total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        let percentage = (context.parsed / total * 100).toFixed(1);
+                                        label += percentage + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
+            
+            // Mobile menu toggle
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Smooth scroll and active link highlighting
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section[id]');
+            const navbar = document.getElementById('navbar');
+            const navHeight = navbar.offsetHeight;
+
+            function setActiveLink() {
+                let current = '';
+                // Adjust the target element for intersection observer
+                const mainSections = document.querySelectorAll('.print-page > section[id]');
+                mainSections.forEach(section => {
+                    const sectionTop = section.closest('.print-page').offsetTop;
+                    if (pageYOffset >= sectionTop - navHeight - 50) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('data-target') && document.getElementById(link.getAttribute('data-target'))) {
+                         if (link.getAttribute('data-target') === current) {
+                            link.classList.add('active');
+                        }
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                if (link.getAttribute('data-target')) {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.getAttribute('data-target');
+                        // Find the wrapper .print-page for the target section
+                        const targetSection = document.getElementById(targetId);
+                        const targetElement = targetSection ? targetSection.closest('.print-page') : null;
+                        
+                        if(targetElement) {
+                            window.scrollTo({
+                                top: targetElement.offsetTop - navHeight,
+                                behavior: 'smooth'
+                            });
+                        }
+
+                        if (!mobileMenu.classList.contains('hidden')) {
+                            mobileMenu.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+
+            window.addEventListener('scroll', setActiveLink);
+            setActiveLink();
+        });
+    </script>
+</body>
+</html>
