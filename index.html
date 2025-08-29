@@ -9,16 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-    <!-- Chosen Palette: Lavender Dream (Restored) -->
-    <!-- Application Structure Plan: The application is designed as a single-page, scrollable website with a fixed navigation bar. This structure is superior to a static PDF for a proposal, as it allows stakeholders (like event organizers or the artist's agency) to quickly navigate to key sections like the budget, timeline, or specific event details using the sticky navigation. The flow is logical: starting with the core concept, moving to detailed on-site and backstage plans, and concluding with logistics like fundraising and scheduling. This task-oriented design prioritizes ease of access to critical information for decision-makers. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Budget Allocation -> Goal: Inform -> Viz/Presentation Method: Donut Chart -> Interaction: Hover to see details -> Justification: Provides an immediate, easy-to-understand visual breakdown of financial priorities, which is more impactful than a simple table. -> Library/Method: Chart.js/Canvas.
-        - Report Info: Project Timeline -> Goal: Organize -> Viz/Presentation Method: Interactive Vertical Timeline -> Interaction: Scroll-based animations and clear visual separation of phases. -> Justification: Transforms a dry list of dates into an engaging, easy-to-follow project plan, highlighting key milestones. -> Library/Method: HTML/CSS/Tailwind.
-        - Report Info: On-site Support Details -> Goal: Organize/Inform -> Viz/Presentation Method: Tabbed Interface -> Interaction: Click tabs to switch content -> Justification: Neatly organizes multiple complex event plans (hand banner, special song, encore) into a compact space, preventing cognitive overload for the reader. -> Library/Method: Vanilla JS.
-        - Report Info: Backstage Food Menu -> Goal: Inform -> Viz/Presentation Method: Interactive Cards -> Interaction: Hover/Click for details -> Justification: Presents the catering plan in a visually appealing, organized manner that reflects the care and quality of the support. -> Library/Method: HTML/CSS/Tailwind.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Sans TC', sans-serif;
@@ -92,16 +83,39 @@
             min-height: 300px;
         }
 
+        .lang-btn {
+            padding: 6px 14px;
+            border-radius: 9999px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .lang-btn.active {
+            background-color: #6F5F80;
+            color: white;
+        }
+
+        /* Language visibility logic */
+        .lang-zh, .lang-ko { display: none; }
+        html[lang="zh-Hant"] .lang-zh { display: revert; }
+        html[lang="ko"] .lang-ko { display: revert; }
+        html[lang="ko"] body { font-family: 'Noto Sans KR', sans-serif; }
+        html[lang="zh-Hant"] body { font-family: 'Noto Sans TC', sans-serif; }
+
+
         /* --- HIDE PRINT-ONLY ELEMENTS ON SCREEN --- */
         .print-only {
             display: none;
         }
         
-        /* --- [UNCHANGED] PRINT STYLES --- */
+        /* --- PRINT STYLES --- */
         @media print {
             @page {
                 size: A4;
-                margin: 0; /* 透過 padding 控制邊界 */
+                margin: 0;
             }
             
             html, body {
@@ -114,12 +128,10 @@
                 height: auto;
             }
 
-            /* 隱藏不需列印的元件 */
-            nav, footer, .print-button, #mobile-menu-button, #mobile-menu, #hero {
+            nav, footer, .print-button, #mobile-menu-button, #mobile-menu, #hero, #lang-switcher, #lang-switcher-mobile {
                 display: none !important;
             }
 
-            /* 主要內容容器調整 */
             main {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -127,14 +139,13 @@
                 space-y: 0 !important;
             }
             
-            /* 通用元件列印樣式 */
             .card {
                 box-shadow: 0 8px 32px 0 rgba(160, 143, 176, 0.15) !important;
                 border: 1px solid rgba(255, 255, 255, 0.2) !important;
                 background-color: rgba(255, 255, 255, 0.8) !important;
                 backdrop-filter: blur(12px) !important;
                 -webkit-backdrop-filter: blur(12px) !important;
-                margin-bottom: 0; /* 移除卡片間距 */
+                margin-bottom: 0;
             }
             
             .section-title, h1, h2, h3, h4, p, li, span, strong, .text-accent-dark, .text-gray-700, .text-gray-600, .text-gray-800, .text-gray-500, .text-accent {
@@ -150,39 +161,32 @@
                 padding: 1rem;
             }
 
-            /* --- 頁面佈局與分頁邏輯 --- */
-
-            /* 顯示僅供列印的標題 */
             .print-only {
                 display: block !important;
             }
 
-            /* 定義可列印的頁面區塊 */
             .print-page {
                 padding: 0.75in !important;
                 width: 100%;
                 box-sizing: border-box;
             }
 
-            /* 封面頁: 垂直與水平置中於第一頁 */
             #cover-page.print-page {
                 display: flex !important;
                 flex-direction: column !important;
                 justify-content: center !important;
                 align-items: center !important;
-                height: 100vh; /* 佔滿整頁高度 */
+                height: 100vh;
             }
             #cover-page .card {
                 min-height: 0 !important;
                 width: 100%;
             }
 
-            /* 除了第一頁(封面)，其他頁面都在頂端強制換頁 */
             .print-page:not(#cover-page) {
                 page-break-before: always;
             }
             
-            /* 讓時程規劃的項目盡量保持完整 */
             .timeline-item {
                 page-break-inside: avoid;
             }
@@ -198,16 +202,21 @@
                     <img src="https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=2,width=150/rescene-official/e8f55769-35f4-4135-b326-99d3fdc2c0c4/ec5b4ff4-4b44-4579-9f5d-fd51807768a6/ori.png" alt="RESCENE Logo" class="h-8">
                 </a>
                 <div class="hidden md:flex items-center space-x-2">
-                    <a data-target="cover-page" class="nav-link active">封面</a>
-                    <a data-target="overview" class="nav-link">企劃總覽</a>
-                    <a data-target="on-site" class="nav-link">現場應援</a>
-                    <a data-target="backstage" class="nav-link">後台應援</a>
-                    <a data-target="fundraising" class="nav-link">募資計畫</a>
-                    <a data-target="timeline" class="nav-link">執行時程</a>
+                    <a data-target="cover-page" class="nav-link active"><span class="lang-zh">封面</span><span class="lang-ko">커버</span></a>
+                    <a data-target="overview" class="nav-link"><span class="lang-zh">企劃總覽</span><span class="lang-ko">기획 개요</span></a>
+                    <a data-target="on-site" class="nav-link"><span class="lang-zh">現場應援</span><span class="lang-ko">현장 서포트</span></a>
+                    <a data-target="backstage" class="nav-link"><span class="lang-zh">後台應援</span><span class="lang-ko">백스테이지</span></a>
+                    <a data-target="fundraising" class="nav-link"><span class="lang-zh">募資計畫</span><span class="lang-ko">펀딩 계획</span></a>
+                    <a data-target="timeline" class="nav-link"><span class="lang-zh">執行時程</span><span class="lang-ko">실행 일정</span></a>
+                    <a data-target="manpower" class="nav-link"><span class="lang-zh">人力規劃</span><span class="lang-ko">인력 계획</span></a>
                     <a onclick="window.print()" class="nav-link print-button flex items-center space-x-2 bg-accent-light text-accent-dark hover:bg-accent hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
-                        <span>列印</span>
+                        <span><span class="lang-zh">列印</span><span class="lang-ko">인쇄</span></span>
                     </a>
+                    <div id="lang-switcher" class="flex items-center border border-gray-200 rounded-full ml-2 p-0.5">
+                        <button data-lang="zh" class="lang-btn active">繁中</button>
+                        <button data-lang="ko" class="lang-btn">한국어</button>
+                    </div>
                 </div>
                 <div class="md:hidden">
                     <button id="mobile-menu-button" class="text-accent-dark focus:outline-none">
@@ -217,33 +226,31 @@
             </div>
         </div>
         <div id="mobile-menu" class="hidden md:hidden bg-white/95 pb-4">
-            <a data-target="cover-page" class="block py-2 px-4 text-sm nav-link active text-center">封面</a>
-            <a data-target="overview" class="block py-2 px-4 text-sm nav-link text-center">企劃總覽</a>
-            <a data-target="on-site" class="block py-2 px-4 text-sm nav-link text-center">現場應援</a>
-            <a data-target="backstage" class="block py-2 px-4 text-sm nav-link text-center">後台應援</a>
-            <a data-target="fundraising" class="block py-2 px-4 text-sm nav-link text-center">募資計畫</a>
-            <a data-target="timeline" class="block py-2 px-4 text-sm nav-link text-center">執行時程</a>
-            <a onclick="window.print()" class="block py-2 px-4 text-sm nav-link print-button text-center">列印/存成PDF</a>
+            <a data-target="cover-page" class="block py-2 px-4 text-sm nav-link active text-center"><span class="lang-zh">封面</span><span class="lang-ko">커버</span></a>
+            <a data-target="overview" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">企劃總覽</span><span class="lang-ko">기획 개요</span></a>
+            <a data-target="on-site" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">現場應援</span><span class="lang-ko">현장 서포트</span></a>
+            <a data-target="backstage" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">後台應援</span><span class="lang-ko">백스테이지</span></a>
+            <a data-target="fundraising" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">募資計畫</span><span class="lang-ko">펀딩 계획</span></a>
+            <a data-target="timeline" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">執行時程</span><span class="lang-ko">실행 일정</span></a>
+            <a data-target="manpower" class="block py-2 px-4 text-sm nav-link text-center"><span class="lang-zh">人力規劃</span><span class="lang-ko">인력 계획</span></a>
+            <a onclick="window.print()" class="block py-2 px-4 text-sm nav-link print-button text-center"><span class="lang-zh">列印/存成PDF</span><span class="lang-ko">인쇄/PDF 저장</span></a>
+            <div id="lang-switcher-mobile" class="flex justify-center items-center border border-gray-200 rounded-full mt-2 mx-auto w-fit p-0.5">
+                <button data-lang="zh" class="lang-btn active">繁中</button>
+                <button data-lang="ko" class="lang-btn">한국어</button>
+            </div>
         </div>
     </header>
 
     <section id="hero" class="h-screen flex flex-col justify-end items-center bg-cover bg-center -mt-16 pb-20" style="background-image: url('https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=1,f=auto,width=1360/rescene-official/df14c459-2b0f-4531-b3a8-e7bfb2ddd32a/0e4b281f-3bcc-4e70-83fd-6a61266dc367/ori.jpg');">
-        <!-- RWD OPTIMIZATION: Added responsive width and margin to the hero text box -->
         <div class="text-center p-8 rounded-lg bg-black/20 backdrop-blur-sm w-full max-w-md md:max-w-2xl mx-4 sm:mx-0">
              <img src="https://image.static.bstage.in/cdn-cgi/image/metadata=none,dpr=2,width=150/rescene-official/e8f55769-35f4-4135-b326-99d3fdc2c0c4/ec5b4ff4-4b44-4579-9f5d-fd51807768a6/ori.png" alt="RESCENE Logo" class="h-12 mx-auto mb-4" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
             <p class="text-lg md:text-xl lg:text-2xl mt-4 text-white font-semibold" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">1st FAN-CON in TAIPEI [RE:MIND]</p>
-            <p class="mt-2 text-white/90" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">聯合應援企劃書</p>
+            <p class="mt-2 text-white/90" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.5);"><span class="lang-zh">聯合應援企劃書</span><span class="lang-ko">연합 서포트 기획서</span></p>
         </div>
     </section>
 
-    <!-- SPACING & RWD OPTIMIZATION: 
-        - Changed max-w-6xl to max-w-7xl for a slightly wider layout on large screens.
-        - Replaced p-4 md:p-8 with more granular responsive padding (px-4 sm:px-6 lg:px-8 and py-16 sm:py-20).
-        - Added space-y-16 sm:space-y-20 to create consistent vertical spacing between sections.
-    -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 space-y-16 sm:space-y-20">
         
-        <!-- SPACING OPTIMIZATION: Removed redundant space-y-24 class -->
         <div class="print-page" id="cover-page">
             <section class="scroll-mt-20 p-0">
                  <div class="card min-h-[80vh] flex flex-col justify-center items-center text-center">
@@ -252,9 +259,9 @@
                         <h1 class="text-4xl md:text-5xl font-bold font-serif text-accent-dark mt-8">1st FAN-CON in TAIPEI</h1>
                         <h2 class="text-3xl md:text-4xl font-bold font-serif text-accent-dark mt-2">[RE:MIND]</h2>
                         <div class="my-12 border-t-2 border-accent w-1/4 mx-auto"></div>
-                        <p class="text-3xl md:text-4xl font-serif text-gray-700">聯合應援企劃書</p>
-                        <p class="mt-8 text-lg text-gray-600">提案單位：RESCENE Taipei Fan Union</p>
-                        <p class="mt-2 text-lg text-gray-600">提案日期：2025年8月28日</p>
+                        <p class="text-3xl md:text-4xl font-serif text-gray-700"><span class="lang-zh">聯合應援企劃書</span><span class="lang-ko">연합 서포트 기획서</span></p>
+                        <p class="mt-8 text-lg text-gray-600"><span class="lang-zh">提案單位：RESCENE Taipei Fan Union</span><span class="lang-ko">제안: RESCENE Taipei Fan Union</span></p>
+                        <p class="mt-2 text-lg text-gray-600"><span class="lang-zh">提案日期：2025年8月28日</span><span class="lang-ko">제안일: 2025년 8월 28일</span></p>
                     </div>
                 </div>
             </section>
@@ -262,11 +269,12 @@
 
         <div class="print-page">
             <section id="overview" class="scroll-mt-20 p-0">
-                <h2 class="section-title font-serif">I. 企劃總覽</h2>
+                <h2 class="section-title font-serif"><span class="lang-zh">I. 企劃總覽</span><span class="lang-ko">I. 기획 개요</span></h2>
                 <div class="card">
-                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif">核心概念：以香氣喚醒，以回憶連結</h3>
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif"><span class="lang-zh">核心概念：以香氣喚醒，以回憶連結</span><span class="lang-ko">핵심 컨셉: 향기로 깨우고, 추억으로 연결하다</span></h3>
                     <p class="text-lg leading-relaxed text-gray-800">
-                        本次應援企劃的核心願景，不僅是為 RESCENE 首次台北 FAN-CON 提供支持，更是要將活動打造成一場深刻的、多感官的「普魯斯特效應」體驗。企劃將緊密圍繞 RESCENE 的核心概念——「香氣 (Scent)」與「場景 (Scene)」，並與 FAN-CON 主題「RE:MIND」及粉絲名「REMINE」進行深度連結。我們的目標是將粉絲的愛與支持，轉化為一種獨特、溫暖、專屬於台北的「香氣」，讓 RESCENE 在踏上舞台的每一刻，都能聞到、看到、感受到這份深刻的連結，共同創造一個在未來能不斷被「RE:MIND」的完美場景。
+                        <span class="lang-zh">本次應援企劃的核心願景，不僅是為 RESCENE 首次台北 FAN-CON 提供支持，更是要將活動打造成一場深刻的、多感官的「普魯斯特效應」體驗。企劃將緊密圍繞 RESCENE 的核心概念——「香氣 (Scent)」與「場景 (Scene)」，並與 FAN-CON 主題「RE:MIND」及粉絲名「REMINE」進行深度連結。我們的目標是將粉絲的愛與支持，轉化為一種獨特、溫暖、專屬於台北的「香氣」，讓 RESCENE 在踏上舞台的每一刻，都能聞到、看到、感受到這份深刻的連結，共同創造一個在未來能不斷被「RE:MIND」的完美場景。</span>
+                        <span class="lang-ko">이번 서포트 기획의 핵심 비전은 RESCENE의 첫 타이베이 팬콘을 지원하는 것뿐만 아니라, 행사를 깊이 있고 다감각적인 '프루스트 효과' 체험으로 만드는 것입니다. 기획은 RESCENE의 핵심 컨셉인 '향기(Scent)'와 '장면(Scene)'을 중심으로, 팬콘 주제인 'RE:MIND' 및 팬덤명 'REMINE'과 깊이 연결됩니다. 저희의 목표는 팬들의 사랑과 지지를 독특하고 따뜻하며 타이베이만의 '향기'로 전환하여, RESCENE이 무대에 오르는 모든 순간에 이 깊은 연결을 맡고, 보고, 느끼며, 미래에 계속해서 'RE:MIND'될 수 있는 완벽한 장면을 함께 만드는 것입니다.</span>
                     </p>
                 </div>
             </section>
@@ -274,76 +282,76 @@
 
         <div class="print-page">
             <section id="on-site" class="scroll-mt-20 p-0">
-                <h2 class="section-title font-serif">II. 現場應援企劃</h2>
+                <h2 class="section-title font-serif"><span class="lang-zh">II. 現場應援企劃</span><span class="lang-ko">II. 현장 서포트 기획</span></h2>
                 <div class="card">
-                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">傳遞我們的話語：單一款全場手幅 (規劃)</h3>
-                    <p class="mb-4 text-gray-700">為集中資源並確保訊息傳遞的統一性，本次規劃製作一款設計精美、訊息深刻的主手幅於全場發放。</p>
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">傳遞我們的話語：單一款全場手幅 (規劃)</span><span class="lang-ko">우리의 메시지 전달: 단일 디자인 전체 슬로건 (기획)</span></h3>
+                    <p class="mb-4 text-gray-700"><span class="lang-zh">為集中資源並確保訊息傳遞的統一性，本次規劃製作一款設計精美、訊息深刻的主手幅於全場發放。</span><span class="lang-ko">자원을 집중하고 메시지 전달의 통일성을 확보하기 위해, 이번에는 아름답게 디자인되고 깊은 메시지를 담은 메인 슬로건을 제작하여 전체 관객에게 배부할 계획입니다.</span></p>
                     <ul class="space-y-4 list-disc list-inside text-gray-700">
-                        <li><strong>正面文案 (暫定):</strong> <span class="font-semibold text-gray-800">이 순간의 향기, 타이베이가 주는 기억</span><br><span class="text-sm text-gray-500">(翻譯: 此刻的香氣，是台北獻上的記憶)</span></li>
-                        <li class="space-y-2"><strong>背面文案 (暫定):</strong> 
+                        <li><strong><span class="lang-zh">正面文案 (暫定):</span><span class="lang-ko">앞면 문구 (가안):</span></strong> <span class="font-semibold text-gray-800">이 순간의 향기, 타이베이가 주는 기억</span><br><span class="text-sm text-gray-500"><span class="lang-zh">(翻譯: 此刻的香氣，是台北獻上的記憶)</span><span class="lang-ko">(번역: 이 순간의 향기는, 타이베이가 선사하는 기억)</span></span></li>
+                        <li class="space-y-2"><strong><span class="lang-zh">背面文案 (暫定):</span><span class="lang-ko">뒷면 문구 (가안):</span></strong> 
                             <p class="text-sm"><strong class="font-semibold text-gray-800">繁中:</strong> 應援影片播放結束後，請舉起寫有韓文的正面。安可時，請與我們一同清唱 "LOVE ATTACK" 副歌。</p>
                             <p class="text-sm"><strong class="font-semibold text-gray-800">한글:</strong> 응원 영상이 끝난 후, 앞면(한국어)을 들어주세요. 앵콜 시에는 'LOVE ATTACK' 후렴구를 함께 불러주세요.</p>
                             <p class="text-sm"><strong class="font-semibold text-gray-800">日本語:</strong> 応援映像が終わったら、表面（韓国語）を上げてください。アンコールでは「LOVE ATTACK」のサビを一緒に歌ってください。</p>
                             <p class="text-sm"><strong class="font-semibold text-gray-800">English:</strong> After the fan video, please raise the front (Korean side). For the encore, please sing the chorus of "LOVE ATTACK" with us.</p>
                         </li>
-                        <li><strong>預計設計風格:</strong> 以「綻放的花」或「香水瓶」為視覺元素，採用柔和色系。</li>
-                        <li><strong>預計材質規格:</strong> 採用霧面不反光相紙或布質，尺寸估計約 45cm x 15cm，避免舞台燈光反射。</li>
-                        <li><strong>規劃使用時機:</strong> <span class="font-semibold text-gray-800">應援影片播放結束後</span> (及 Talking、大合照環節)</li>
+                        <li><strong><span class="lang-zh">預計設計風格:</span><span class="lang-ko">예상 디자인 스타일:</span></strong> <span class="lang-zh">以「綻放的花」或「香水瓶」為視覺元素，採用柔和色系。</span><span class="lang-ko">'피어나는 꽃' 또는 '향수병'을 시각적 요소로 사용하여 부드러운 색감으로 디자인할 예정입니다.</span></li>
+                        <li><strong><span class="lang-zh">預計材質規格:</span><span class="lang-ko">예상 재질 및 규격:</span></strong> <span class="lang-zh">採用霧面不反光相紙，尺寸估計約 45cm x 15cm，避免舞台燈光反射。</span><span class="lang-ko">무대 조명 반사를 피하기 위해 무광 비반사 포토용지를 사용하며, 크기는 약 45cm x 15cm로 예상됩니다.</span></li>
+                        <li><strong><span class="lang-zh">規劃使用時機:</span><span class="lang-ko">사용 시점:</span></strong> <span class="font-semibold text-gray-800"><span class="lang-zh">應援影片播放結束後</span><span class="lang-ko">응원 영상 종료 후</span></span> <span class="lang-zh">(及 Talking、大合照環節)</span><span class="lang-ko">(및 토크, 단체 사진 촬영 시간)</span></li>
                     </ul>
                 </div>
             </section>
         </div>
         <div class="print-page">
             <section class="p-0">
-                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">II. 現場應援企劃</span><span class="lang-ko">II. 현장 서포트 기획</span></h2>
                 <div class="card">
-                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">回憶的香頌：歌曲 "Deja Vu" 綠色光海 (規劃)</h3>
-                    <p class="mb-4 text-gray-700">為確保所有粉絲都能輕鬆參與並專注於表演，規劃採用經典且效果卓越的玻璃紙燈海應援。綠色呼應 "Deja Vu" MV 中的青草與自然元素，營造清新夢幻的氛圍。</p>
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">回憶的香頌：歌曲 "Deja Vu" 綠色光海 (規劃)</span><span class="lang-ko">추억의 샹송: "Deja Vu" 초록 불빛 바다 (기획)</span></h3>
+                    <p class="mb-4 text-gray-700"><span class="lang-zh">為確保所有粉絲都能輕鬆參與並專注於表演，規劃採用經典且效果卓越的玻璃紙燈海應援。綠色呼應 "Deja Vu" MV 中的青草與自然元素，營造清新夢幻的氛圍。</span><span class="lang-ko">모든 팬들이 쉽게 참여하고 공연에 집중할 수 있도록, 클래식하면서도 효과가 뛰어난 셀로판지 라이트 오션 서포트를 기획합니다. 초록색은 "Deja Vu" 뮤직비디오의 풀과 자연 요소를 상징하며, 신선하고 몽환적인 분위기를 연출합니다.</span></p>
                     <ol class="space-y-3 list-decimal list-inside text-gray-700">
-                        <li><strong>事前準備:</strong> 預計入場時，向每位粉絲發放一張綠色玻璃紙。</li>
-                        <li><strong>觸發時機:</strong> 規劃當 "Deja Vu" 唱到 Bridge 段落時，全場粉絲 <span class="font-semibold text-gray-800">統一關閉手燈</span>。</li>
-                        <li><strong>點亮回憶:</strong> 關閉手燈同時，開啟手機手電筒，並將綠色玻璃紙覆蓋在鏡頭上，共同創造一片靜謐的「螢光森林」。</li>
-                        <li><strong>優點:</strong> 操作最為簡單，視覺效果集中壯觀，粉絲無需分心操作手機，能完全沉浸在音樂與氛圍中。</li>
+                        <li><strong><span class="lang-zh">事前準備:</span><span class="lang-ko">사전 준비:</span></strong> <span class="lang-zh">預計入場時，向每位粉絲發放一張綠色玻璃紙。</span><span class="lang-ko">입장 시 모든 팬에게 초록색 셀로판지를 한 장씩 배부할 예정입니다.</span></li>
+                        <li><strong><span class="lang-zh">觸發時機:</span><span class="lang-ko">실행 시점:</span></strong> <span class="lang-zh">規劃當 "Deja Vu" 唱到 Bridge 段落時，全場粉絲</span><span class="lang-ko">"Deja Vu"의 브릿지 파트에서 모든 팬들이</span> <span class="font-semibold text-gray-800"><span class="lang-zh">統一關閉手燈</span><span class="lang-ko">응원봉을 일제히 끕니다</span></span>。</li>
+                        <li><strong><span class="lang-zh">點亮回憶:</span><span class="lang-ko">추억 밝히기:</span></strong> <span class="lang-zh">關閉手燈同時，開啟手機手電筒，並將綠色玻璃紙覆蓋在鏡頭上，共同創造一片靜謐的「螢光森林」。</span><span class="lang-ko">응원봉을 끈 동시에 휴대폰 손전등을 켜고, 렌즈 위에 초록색 셀로판지를 덮어 고요한 '형광 숲'을 함께 만듭니다.</span></li>
+                        <li><strong><span class="lang-zh">優點:</span><span class="lang-ko">장점:</span></strong> <span class="lang-zh">操作最為簡單，視覺效果集中壯觀，粉絲無需分心操作手機，能完全沉浸在音樂與氛圍中。</span><span class="lang-ko">조작이 가장 간단하고 시각적 효과가 집중되어 장관을 이루며, 팬들이 휴대폰 조작에 신경 쓰지 않고 음악과 분위기에 완전히 몰입할 수 있습니다.</span></li>
                     </ol>
                 </div>
             </section>
         </div>
         <div class="print-page">
             <section class="p-0">
-                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">II. 現場應援企劃</span><span class="lang-ko">II. 현장 서포트 기획</span></h2>
                 <div class="card">
-                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">呼喚我們的香氣：特別安可應援 (規劃)</h3>
-                    <p class="mb-4 text-gray-700">為創造更具意義的安可環節，規劃由全場共同清唱 RESCENE 的熱門歌曲 "LOVE ATTACK" 的副歌部分。</p>
-                    <p class="text-gray-700"><strong>理由:</strong> "LOVE ATTACK" 充滿活力與記憶點，副歌旋律朗朗上口，適合全場大合唱，能將活動氣氛推向最高潮，以最熱情的方式呼喚她們重返舞台。</p>
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">呼喚我們的香氣：特別安可應援 (規劃)</span><span class="lang-ko">우리의 향기를 부르다: 특별 앵콜 서포트 (기획)</span></h3>
+                    <p class="mb-4 text-gray-700"><span class="lang-zh">為創造更具意義的安可環節，規劃由全場共同清唱 RESCENE 的熱門歌曲 "LOVE ATTACK" 的副歌部分。</span><span class="lang-ko">더욱 의미 있는 앵콜을 만들기 위해, RESCENE의 인기곡 "LOVE ATTACK"의 후렴구를 다 함께 떼창하는 것을 기획합니다.</span></p>
+                    <p class="text-gray-700"><strong><span class="lang-zh">理由:</span><span class="lang-ko">이유:</span></strong> <span class="lang-zh">"LOVE ATTACK" 充滿活力與記憶點，副歌旋律朗朗上口，適合全場大合唱，能將活動氣氛推向最高潮，以最熱情的方式呼喚她們重返舞台。</span><span class="lang-ko">"LOVE ATTACK"은 활기차고 기억에 남는 포인트가 많으며, 후렴구 멜로디가 따라 부르기 쉬워 떼창에 적합합니다. 이를 통해 현장 분위기를 최고조로 끌어올리고, 가장 열정적인 방식으로 그녀들을 다시 무대로 불러낼 수 있습니다.</span></p>
                 </div>
             </section>
         </div>
         <div class="print-page">
             <section class="p-0">
-                <h2 class="section-title font-serif print-only">II. 現場應援企劃</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">II. 現場應援企劃</span><span class="lang-ko">II. 현장 서포트 기획</span></h2>
                 <div class="card">
-                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif">影片應援：REMINE 的心意膠卷 (方案討論)</h3>
-                    <p class="mb-4 text-gray-700">為向 RESCENE 傳達台灣 REMINE 的心意，我們希望能製作一支應援影片於場內播放。影片的最終風格與呈現方式會由剪輯者把關，但內容歡迎大家一起集思廣益，這裡提供以下幾種方案作為討論參考：</p>
+                    <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">影片應援：REMINE 的心意膠卷 (方案討論)</span><span class="lang-ko">영상 서포트: REMINE의 마음을 담은 필름 (방안 논의)</span></h3>
+                    <p class="mb-4 text-gray-700"><span class="lang-zh">為向 RESCENE 傳達台灣 REMINE 的心意，我們希望能製作一支應援影片於場內播放。影片的最終風格與呈現方式會由剪輯者把關，但內容歡迎大家一起集思廣益，這裡提供以下幾種方案作為討論參考：</span><span class="lang-ko">RESCENE에게 대만 REMINE의 마음을 전하기 위해, 공연장에서 상영할 서포트 영상을 제작하고자 합니다. 영상의 최종 스타일과 표현 방식은 편집자가 결정하겠지만, 내용에 대해서는 모두의 아이디어를 환영합니다. 아래 몇 가지 방안을 논의용으로 제안합니다:</span></p>
                     <div class="space-y-4">
                         <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
-                            <h4 class="font-bold text-accent-dark">提案A：訊息照片輪播 (感性溫馨)</h4>
-                            <p class="mt-1 text-sm text-gray-700">募集粉絲手持「手寫應援訊息」的照片，集結成溫馨的電子相冊影片。</p>
+                            <h4 class="font-bold text-accent-dark"><span class="lang-zh">提案A：訊息照片輪播 (感性溫馨)</span><span class="lang-ko">제안 A: 메시지 사진 슬라이드쇼 (감성적이고 따뜻하게)</span></h4>
+                            <p class="mt-1 text-sm text-gray-700"><span class="lang-zh">募集粉絲手持「手寫應援訊息」的照片，集結成溫馨的電子相冊影片。</span><span class="lang-ko">팬들이 직접 쓴 '응원 메시지'를 들고 찍은 사진을 모아 따뜻한 분위기의 영상 앨범을 제작합니다.</span></p>
                         </div>
                         <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
-                            <h4 class="font-bold text-accent-dark">提案B：粉絲挑戰影片 (活潑有趣)</h4>
-                            <p class="mt-1 text-sm text-gray-700">募集粉絲參與 "LOVE ATTACK" 副歌舞蹈挑戰的短影片，剪輯成充滿活力的快節奏影片。</p>
+                            <h4 class="font-bold text-accent-dark"><span class="lang-zh">提案B：粉絲挑戰影片 (活潑有趣)</span><span class="lang-ko">제안 B: 팬 챌린지 영상 (활기차고 재미있게)</span></h4>
+                            <p class="mt-1 text-sm text-gray-700"><span class="lang-zh">募集粉絲參與 "LOVE ATTACK" 副歌舞蹈挑戰的短影片，剪輯成充滿活力的快節奏影片。</span><span class="lang-ko">팬들이 참여한 "LOVE ATTACK" 후렴구 댄스 챌린지 짧은 영상을 모아 활기찬 분위기의 빠른 템포 영상으로 편집합니다.</span></p>
                         </div>
                          <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
-                            <h4 class="font-bold text-accent-dark">提案C：「我們的場景」景點影片</h4>
-                            <p class="mt-1 text-sm text-gray-700">募集粉絲在台灣各地景點，手持「歡迎RESCENE」標語的短片，剪輯成一部介紹台灣之美的歡迎影片。</p>
+                            <h4 class="font-bold text-accent-dark"><span class="lang-zh">提案C：「我們的場景」景點影片</span><span class="lang-ko">제안 C: '우리의 장면' 명소 영상</span></h4>
+                            <p class="mt-1 text-sm text-gray-700"><span class="lang-zh">募集粉絲在台灣各地景點，手持「歡迎RESCENE」標語的短片，剪輯成一部介紹台灣之美的歡迎影片。</span><span class="lang-ko">대만 각지의 명소에서 'RESCENE 환영' 문구를 들고 있는 팬들의 짧은 영상을 모아 대만의 아름다움을 소개하는 환영 영상을 제작합니다.</span></p>
                         </div>
                          <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
-                            <h4 class="font-bold text-accent-dark">提案D：粉絲創作輪播</h4>
-                            <p class="mt-1 text-sm text-gray-700">募集粉絲為RESCENE創作的繪圖、手寫字等藝術作品，製作成一部展現粉絲才華的藝術 slideshow。</p>
+                            <h4 class="font-bold text-accent-dark"><span class="lang-zh">提案D：粉絲創作輪播</span><span class="lang-ko">제안 D: 팬 창작물 슬라이드쇼</span></h4>
+                            <p class="mt-1 text-sm text-gray-700"><span class="lang-zh">募集粉絲為RESCENE創作的繪圖、手寫字等藝術作品，製作成一部展現粉絲才華的藝術 slideshow。</span><span class="lang-ko">팬들이 RESCENE을 위해 만든 그림, 캘리그라피 등 예술 작품을 모아 팬들의 재능을 보여주는 아트 슬라이드쇼를 제작합니다.</span></p>
                         </div>
                          <div class="p-4 border-l-4 border-accent bg-accent-light/50 rounded-r-lg">
-                            <h4 class="font-bold text-accent-dark">提案E：感謝話語錄音合輯</h4>
-                            <p class="mt-1 text-sm text-gray-700">募集粉絲錄製3-5秒想對RESCENE說的話，將音檔集結，搭配官方MV或照片畫面，製作成感性的告白影片。</p>
+                            <h4 class="font-bold text-accent-dark"><span class="lang-zh">提案E：感謝話語錄音合輯</span><span class="lang-ko">제안 E: 감사 메시지 음성 모음</span></h4>
+                            <p class="mt-1 text-sm text-gray-700"><span class="lang-zh">募集粉絲錄製3-5秒想對RESCENE說的話，將音檔集結，搭配官方MV或照片畫面，製作成感性的告白影片。</span><span class="lang-ko">팬들이 RESCENE에게 하고 싶은 말을 3-5초 분량으로 녹음한 음성 파일을 모아 공식 뮤직비디오나 사진과 함께 감성적인 고백 영상을 제작합니다.</span></p>
                         </div>
                     </div>
                 </div>
@@ -352,62 +360,62 @@
 
         <div class="print-page">
             <section id="backstage" class="scroll-mt-20 p-0">
-                <h2 class="section-title font-serif">III. 後台應援</h2>
+                <h2 class="section-title font-serif"><span class="lang-zh">III. 後台應援</span><span class="lang-ko">III. 백스테이지 서포트</span></h2>
                 <div class="card">
-                     <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif text-center">預計方案</h3>
-                     <p class="text-gray-700">為向藝人與團隊表達最誠摯的歡迎與感謝，我們預計規劃餐飲及特色獻禮的後台應援。所有項目的具體內容與執行細節，將在募資達到第二階段目標後，與主辦單位及經紀方進行密切溝通，並依其需求與規定進行最終確認與調整，確保應援活動能以最貼心、最完善的方式呈現。</p>
+                     <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif text-center"><span class="lang-zh">預計方案</span><span class="lang-ko">예상 방안</span></h3>
+                     <p class="text-gray-700"><span class="lang-zh">為向藝人與團隊表達最誠摯的歡迎與感謝，我們預計規劃餐飲及特色獻禮的後台應援。所有項目的具體內容與執行細節，將在募資達到第二階段目標後，與主辦單位及經紀方進行密切溝通，並依其需求與規定進行最終確認與調整，確保應援活動能以最貼心、最完善的方式呈現。</span><span class="lang-ko">아티스트와 스태프에게 진심 어린 환영과 감사를 표하기 위해, 케이터링 및 특별 선물로 구성된 백스테이지 서포트를 기획하고 있습니다. 모든 항목의 구체적인 내용과 실행 세부 사항은 펀딩 2단계 목표 달성 후, 주최 측 및 소속사와 긴밀히 소통하여 그들의 요구와 규정에 따라 최종 확인 및 조정을 거칠 예정입니다. 이를 통해 서포트가 가장 세심하고 완벽한 방식으로 전달될 수 있도록 하겠습니다.</span></p>
                 </div>
             </section>
         </div>
 
         <div class="print-page">
             <section id="fundraising" class="scroll-mt-20 p-0">
-                <h2 class="section-title font-serif">IV. 募資計畫</h2>
+                <h2 class="section-title font-serif"><span class="lang-zh">IV. 募資計畫</span><span class="lang-ko">IV. 펀딩 계획</span></h2>
                 <div class="card">
-                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif">金額細估與階段式募資</h3>
-                    <p class="mb-6 text-gray-700">為確保計畫執行順利並提高資金運用的透明度，我們將募資分為兩階段。以場館人數450人為基礎進行初步估算：</p>
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif"><span class="lang-zh">金額細估與階段式募資</span><span class="lang-ko">예산 상세 및 단계별 펀딩</span></h3>
+                    <p class="mb-6 text-gray-700"><span class="lang-zh">為確保計畫執行順利並提高資金運用的透明度，我們將募資分為兩階段。以場館人數450人為基礎進行初步估算：</span><span class="lang-ko">프로젝트의 원활한 진행과 자금 사용의 투명성을 높이기 위해, 펀딩을 두 단계로 나누어 진행합니다. 공연장 수용 인원 450명을 기준으로 초기 예산을 다음과 같이 추산합니다:</span></p>
                     <div class="mb-6">
-                        <h4 class="font-bold text-lg text-accent-dark">第一階段：核心現場應援 (目標估算：NT$ 18,000)</h4>
-                        <p class="text-sm text-gray-600">此階段為必要應援項目，確保所有入場粉絲都能參與。</p>
+                        <h4 class="font-bold text-lg text-accent-dark"><span class="lang-zh">第一階段：核心現場應援 (目標估算：NT$ 18,000)</span><span class="lang-ko">1단계: 핵심 현장 서포트 (목표 예상액: NT$ 18,000)</span></h4>
+                        <p class="text-sm text-gray-600"><span class="lang-zh">此階段為必要應援項目，確保所有入場粉絲都能參與。</span><span class="lang-ko">이 단계는 필수 서포트 항목으로, 모든 입장 관객이 참여할 수 있도록 보장합니다.</span></p>
                         <ul class="list-disc list-inside mt-2 text-gray-700">
-                            <li>全場手幅 (估算450份 x NT$25/份) = NT$ 11,250</li>
-                            <li>綠色玻璃紙 (估算450份 x NT$5/份) = NT$ 2,250</li>
-                            <li>行政與雜支 (預估印刷、物流等) = NT$ 4,500</li>
+                            <li><span class="lang-zh">全場手幅 (估算450份 x NT$25/份) = NT$ 11,250</span><span class="lang-ko">전체 슬로건 (예상 450개 x NT$25/개) = NT$ 11,250</span></li>
+                            <li><span class="lang-zh">綠色玻璃紙 (估算450份 x NT$5/份) = NT$ 2,250</span><span class="lang-ko">초록색 셀로판지 (예상 450개 x NT$5/개) = NT$ 2,250</span></li>
+                            <li><span class="lang-zh">行政與雜支 (預估印刷、物流等) = NT$ 4,500</span><span class="lang-ko">행정 및 기타 비용 (인쇄, 물류 등 예상) = NT$ 4,500</span></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 class="font-bold text-lg text-accent-dark">第二階段：後台支援與募資回饋品 (目標估算：NT$ 42,000)</h4>
-                        <p class="text-sm text-gray-600">第一階段達標後規劃開啟。此階段為選擇性追加項目，旨在提供更完善的支持。</p>
+                        <h4 class="font-bold text-lg text-accent-dark"><span class="lang-zh">第二階段：後台支援與募資回饋品 (目標估算：NT$ 42,000)</span><span class="lang-ko">2단계: 백스테이지 지원 및 펀딩 리워드 (목표 예상액: NT$ 42,000)</span></h4>
+                        <p class="text-sm text-gray-600"><span class="lang-zh">第一階段達標後規劃開啟。此階段為選擇性追加項目，旨在提供更完善的支持。</span><span class="lang-ko">1단계 목표 달성 후 시작될 예정입니다. 이 단계는 선택적 추가 항목으로, 더 완벽한 지원을 제공하기 위함입니다.</span></p>
                         <ul class="list-disc list-inside mt-2 text-gray-700">
-                            <li>後台餐飲與特色獻禮 (預算) = NT$ 25,000</li>
-                            <li>募資回饋品製作 (預算) = NT$ 15,000</li>
-                            <li>追加雜支 (預估) = NT$ 2,000</li>
+                            <li><span class="lang-zh">後台餐飲與特色獻禮 (預算) = NT$ 25,000</span><span class="lang-ko">백스테이지 케이터링 및 특별 선물 (예산) = NT$ 25,000</span></li>
+                            <li><span class="lang-zh">募資回饋品製作 (預算) = NT$ 15,000</span><span class="lang-ko">펀딩 리워드 제작 (예산) = NT$ 15,000</span></li>
+                            <li><span class="lang-zh">追加雜支 (預估) = NT$ 2,000</span><span class="lang-ko">추가 기타 비용 (예상) = NT$ 2,000</span></li>
                         </ul>
                     </div>
-                    <p class="mt-6 text-sm text-gray-500">*所有款項將公開透明，並於活動結束後公布詳細財報。集資若有餘額，將全數以RESCENE名義捐贈予公益團體，或保留至下次專場使用，屆時會再進行公告與投票。</p>
+                    <p class="mt-6 text-sm text-gray-500"><span class="lang-zh">*所有款項將公開透明，並於活動結束後公布詳細財報。集資若有餘額，將全數以RESCENE名義捐贈予公益團體，或保留至下次專場使用，屆時會再進行公告與投票。</span><span class="lang-ko">*모든 자금 내역은 투명하게 공개되며, 행사 종료 후 상세 정산 보고서를 공지할 예정입니다. 펀딩 후 남은 금액은 전액 RESCENE의 이름으로 공익 단체에 기부하거나, 다음 단독 행사를 위해 이월되며, 이 경우 추후 공지 및 투표를 통해 결정됩니다.</span></p>
                 </div>
             </section>
         </div>
         <div class="print-page">
             <section class="p-0">
-                <h2 class="section-title font-serif print-only">IV. 募資計畫</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">IV. 募資計畫</span><span class="lang-ko">IV. 펀딩 계획</span></h2>
                 <div class="card">
-                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif">總預算細項 (估算)</h3>
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif"><span class="lang-zh">總預算細項 (估算)</span><span class="lang-ko">총 예산 상세 (예상)</span></h3>
                      <div class="space-y-4">
                         <div>
-                            <h4 class="font-bold text-lg text-accent-dark">第一階段 (總計: NT$ 18,000)</h4>
+                            <h4 class="font-bold text-lg text-accent-dark"><span class="lang-zh">第一階段 (總計: NT$ 18,000)</span><span class="lang-ko">1단계 (총액: NT$ 18,000)</span></h4>
                             <ul class="mt-2 space-y-2 text-gray-700">
-                                <li class="flex justify-between border-b pb-1"><span>全場手幅 (450份)</span><span class="font-semibold">NT$ 11,250</span></li>
-                                <li class="flex justify-between border-b pb-1"><span>綠色玻璃紙 (450份)</span><span class="font-semibold">NT$ 2,250</span></li>
-                                <li class="flex justify-between"><span>行政與雜支</span><span class="font-semibold">NT$ 4,500</span></li>
+                                <li class="flex justify-between border-b pb-1"><span><span class="lang-zh">全場手幅 (450份)</span><span class="lang-ko">전체 슬로건 (450개)</span></span><span class="font-semibold">NT$ 11,250</span></li>
+                                <li class="flex justify-between border-b pb-1"><span><span class="lang-zh">綠色玻璃紙 (450份)</span><span class="lang-ko">초록색 셀로판지 (450개)</span></span><span class="font-semibold">NT$ 2,250</span></li>
+                                <li class="flex justify-between"><span><span class="lang-zh">行政與雜支</span><span class="lang-ko">행정 및 기타 비용</span></span><span class="font-semibold">NT$ 4,500</span></li>
                             </ul>
                         </div>
                         <div>
-                            <h4 class="font-bold text-lg text-accent-dark">第二階段 (總計: NT$ 42,000)</h4>
+                            <h4 class="font-bold text-lg text-accent-dark"><span class="lang-zh">第二階段 (總計: NT$ 42,000)</span><span class="lang-ko">2단계 (총액: NT$ 42,000)</span></h4>
                              <ul class="mt-2 space-y-2 text-gray-700">
-                                <li class="flex justify-between border-b pb-1"><span>後台餐飲與特色獻禮</span><span class="font-semibold">NT$ 25,000</span></li>
-                                <li class="flex justify-between border-b pb-1"><span>募資回饋品製作</span><span class="font-semibold">NT$ 15,000</span></li>
-                                <li class="flex justify-between"><span>追加雜支</span><span class="font-semibold">NT$ 2,000</span></li>
+                                <li class="flex justify-between border-b pb-1"><span><span class="lang-zh">後台餐飲與特色獻禮</span><span class="lang-ko">백스테이지 케이터링 및 선물</span></span><span class="font-semibold">NT$ 25,000</span></li>
+                                <li class="flex justify-between border-b pb-1"><span><span class="lang-zh">募資回饋品製作</span><span class="lang-ko">펀딩 리워드 제작</span></span><span class="font-semibold">NT$ 15,000</span></li>
+                                <li class="flex justify-between"><span><span class="lang-zh">追加雜支</span><span class="lang-ko">추가 기타 비용</span></span><span class="font-semibold">NT$ 2,000</span></li>
                             </ul>
                         </div>
                     </div>
@@ -416,9 +424,9 @@
         </div>
         <div class="print-page">
             <section class="p-0">
-                <h2 class="section-title font-serif print-only">IV. 募資計畫</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">IV. 募資計畫</span><span class="lang-ko">IV. 펀딩 계획</span></h2>
                 <div class="card">
-                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif">預算總覽 (估算)</h3>
+                    <h3 class="text-2xl font-bold text-accent-dark mb-4 text-center font-serif"><span class="lang-zh">預算總覽 (估算)</span><span class="lang-ko">예산 개요 (예상)</span></h3>
                     <div class="chart-container">
                         <canvas id="budgetChart"></canvas>
                     </div>
@@ -428,37 +436,37 @@
 
         <div class="print-page">
             <section id="timeline" class="scroll-mt-20 p-0">
-                <h2 class="section-title font-serif">V. 執行時程規劃</h2>
+                <h2 class="section-title font-serif"><span class="lang-zh">V. 執行時程規劃</span><span class="lang-ko">V. 실행 일정 계획</span></h2>
                 <div class="card">
                     <div class="relative border-l-2 border-accent pl-8 py-4">
                         <div class="timeline-item mb-8">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段一：專案啟動與募資預熱 (暫定 9/1 - 9/7)</h4>
-                            <p class="text-sm text-gray-500">第一週</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段一：專案啟動與募資預熱 (暫定 9/1 - 9/7)</span><span class="lang-ko">1단계: 프로젝트 시작 및 펀딩 예열 (예정 9/1 - 9/7)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">第一週</span><span class="lang-ko">첫째 주</span></p>
                             <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>9/1:</strong> 預計正式發布應援企劃公告，同步啟動第一階段募資。</li>
-                                <li><strong>9/3:</strong> 預計公布手幅、影片素材的募集辦法與規格。</li>
-                                <li><strong>9/5:</strong> 規劃發布應援懶人包，加強宣傳。</li>
-                                <li><strong>9/7:</strong> 預計第一次募資進度回報，感謝初期參與者。</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳、財務)</span><span class="lang-ko">(홍보/마케팅, 재무)</span></strong> <span class="lang-zh">9/1: 預計正式發布應援企劃公告，同步啟動第一階段募資。</span><span class="lang-ko">9/1: 서포트 기획 공지 정식 발표 및 1단계 펀딩 동시 시작 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳、設計組、影片組)</span><span class="lang-ko">(홍보/마케팅, 디자인팀, 영상팀)</span></strong> <span class="lang-zh">9/3: 預計公布手幅、影片素材的募集辦法與規格。</span><span class="lang-ko">9/3: 슬로건 및 영상 소스 모집 방법 및 규격 공지 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳、設計組)</span><span class="lang-ko">(홍보/마케팅, 디자인팀)</span></strong> <span class="lang-zh">9/5: 規劃發布應援懶人包，加強宣傳。</span><span class="lang-ko">9/5: 서포트 안내 이미지/카드뉴스 배포하여 홍보 강화 계획.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務、公關/宣傳)</span><span class="lang-ko">(재무, 홍보/마케팅)</span></strong> <span class="lang-zh">9/7: 預計第一次募資進度回報，感謝初期參與者。</span><span class="lang-ko">9/7: 1차 펀딩 진행 상황 보고 및 초기 참여자 감사 인사 예정.</span></li>
                             </ul>
                         </div>
                         <div class="timeline-item mb-8">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段二：設計定稿與物料下訂 (暫定 9/8 - 9/14)</h4>
-                            <p class="text-sm text-gray-500">第二週</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段二：設計定稿與物料下訂 (暫定 9/8 - 9/14)</span><span class="lang-ko">2단계: 디자인 확정 및 물품 주문 (예정 9/8 - 9/14)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">第二週</span><span class="lang-ko">둘째 주</span></p>
                              <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>9/9:</strong> 規劃手幅設計稿內部投票/決選，並進行最終修改。</li>
-                                <li><strong>9/11:</strong> 預計確認手幅與玻璃紙廠商，正式下單製作、採購。</li>
-                                <li><strong>9/14:</strong> 預計第二次募資進度回報，並公布手幅最終設計圖。</li>
-                                <li>規劃持續收集應援影片投稿素材。</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(設計組、總召)</span><span class="lang-ko">(디자인팀, 총괄)</span></strong> <span class="lang-zh">9/9: 規劃手幅設計稿內部投票/決選，並進行最終修改。</span><span class="lang-ko">9/9: 슬로건 디자인 내부 투표/결정 후 최종 수정 계획.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務、總召)</span><span class="lang-ko">(재무, 총괄)</span></strong> <span class="lang-zh">9/11: 預計確認手幅與玻璃紙廠商，正式下單製作、採購。</span><span class="lang-ko">9/11: 슬로건 및 셀로판지 업체 확정 후 정식 주문/구매 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務、公關/宣傳)</span><span class="lang-ko">(재무, 홍보/마케팅)</span></strong> <span class="lang-zh">9/14: 預計第二次募資進度回報，並公布手幅最終設計圖。</span><span class="lang-ko">9/14: 2차 펀딩 진행 상황 보고 및 슬로건 최종 디자인 공개 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(影片組、公關/宣傳)</span><span class="lang-ko">(영상팀, 홍보/마케팅)</span></strong> <span class="lang-zh">規劃持續收集應援影片投稿素材。</span><span class="lang-ko">서포트 영상 소스 지속적으로 수집 계획.</span></li>
                             </ul>
                         </div>
                         <div class="timeline-item mb-8">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段三：影片製作與二階規劃 (暫定 9/15 - 9/21)</h4>
-                            <p class="text-sm text-gray-500">第三週</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段三：影片製作與二階規劃 (暫定 9/15 - 9/21)</span><span class="lang-ko">3단계: 영상 제작 및 2단계 기획 (예정 9/15 - 9/21)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">第三週</span><span class="lang-ko">셋째 주</span></p>
                              <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>9/15:</strong> 應援影片素材募集暫定截止。</li>
-                                <li><strong>9/16:</strong> 影片剪輯製作預計啟動。</li>
-                                <li><strong>9/18:</strong> 若一階募資達標，規劃啟動第二階段募資計畫。</li>
-                                <li><strong>9/20:</strong> 預計開始與主辦方接洽後台應援細節（若二階啟動）。</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳、影片組)</span><span class="lang-ko">(홍보/마케팅, 영상팀)</span></strong> <span class="lang-zh">9/15: 應援影片素材募集暫定截止。</span><span class="lang-ko">9/15: 서포트 영상 소스 모집 잠정 마감.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(影片組)</span><span class="lang-ko">(영상팀)</span></strong> <span class="lang-zh">9/16: 影片剪輯製作預計啟動。</span><span class="lang-ko">9/16: 영상 편집 제작 시작 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(總召、財務、公關/宣傳)</span><span class="lang-ko">(총괄, 재무, 홍보/마케팅)</span></strong> <span class="lang-zh">9/18: 若一階募資達標，規劃啟動第二階段募資計畫。</span><span class="lang-ko">9/18: 1단계 펀딩 목표 달성 시, 2단계 펀딩 계획 시작.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(總召)</span><span class="lang-ko">(총괄)</span></strong> <span class="lang-zh">9/20: 預計開始與主辦方接洽後台應援細節（若二階啟動）。</span><span class="lang-ko">9/20: 주최 측과 백스테이지 서포트 세부 사항 협의 시작 예정 (2단계 시작 시).</span></li>
                             </ul>
                         </div>
                     </div>
@@ -467,35 +475,35 @@
         </div>
         <div class="print-page">
              <section class="p-0">
-                <h2 class="section-title font-serif print-only">V. 執行時程規劃 (續)</h2>
+                <h2 class="section-title font-serif print-only"><span class="lang-zh">V. 執行時程規劃 (續)</span><span class="lang-ko">V. 실행 일정 계획 (계속)</span></h2>
                 <div class="card">
                     <div class="relative border-l-2 border-accent pl-8 py-4">
                         <div class="timeline-item mb-8">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段四：宣傳衝刺與最終確認 (暫定 9/22 - 9/28)</h4>
-                            <p class="text-sm text-gray-500">第四週</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段四：宣傳衝刺與最終確認 (暫定 9/22 - 9/28)</span><span class="lang-ko">4단계: 홍보 집중 및 최종 확인 (예정 9/22 - 9/28)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">第四週</span><span class="lang-ko">넷째 주</span></p>
                              <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>9/23:</strong> 預計發布現場應援教學圖文/影片，包含手幅使用、安可教唱等。</li>
-                                <li><strong>9/25:</strong> 應援影片初剪預計完成，提交主辦方審核。</li>
-                                <li><strong>9/27:</strong> 預計確認所有應援物到貨，進行品質檢查與分裝。</li>
-                                <li><strong>9/28:</strong> 全體募資暫定截止，準備財務初步整理。</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳、設計組、影片組)</span><span class="lang-ko">(홍보/마케팅, 디자인팀, 영상팀)</span></strong> <span class="lang-zh">9/23: 預計發布現場應援教學圖文/影片，包含手幅使用、安可教唱等。</span><span class="lang-ko">9/23: 슬로건 사용법, 앵콜 떼창 가이드 등 현장 서포트 안내 자료 배포 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(影片組、總召)</span><span class="lang-ko">(영상팀, 총괄)</span></strong> <span class="lang-zh">9/25: 應援影片初剪預計完成，提交主辦方審核。</span><span class="lang-ko">9/25: 서포트 영상 1차 편집 완료 후 주최 측에 검토 요청 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(現場組、財務)</span><span class="lang-ko">(현장팀, 재무)</span></strong> <span class="lang-zh">9/27: 預計確認所有應援物到貨，進行品質檢查與分裝。</span><span class="lang-ko">9/27: 모든 서포트 물품 도착 확인, 품질 검수 및 포장 작업 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務)</span><span class="lang-ko">(재무)</span></strong> <span class="lang-zh">9/28: 全體募資暫定截止，準備財務初步整理。</span><span class="lang-ko">9/28: 전체 펀딩 잠정 마감, 1차 재무 정리 준비.</span></li>
                             </ul>
                         </div>
                         <div class="timeline-item mb-8">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段五：現場準備與執行 (暫定 9/29 - 10/3)</h4>
-                            <p class="text-sm text-gray-500">活動週</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段五：現場準備與執行 (暫定 9/29 - 10/3)</span><span class="lang-ko">5단계: 현장 준비 및 실행 (예정 9/29 - 10/3)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">活動週</span><span class="lang-ko">공연 주</span></p>
                              <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>9/30:</strong> 規劃招募現場小幫手，並發布最終場內應援流程提醒。</li>
-                                <li><strong>10/2:</strong> 預計遞交後台應援禮品與餐點；規劃場佈組領取應援物。</li>
-                                <li><strong>10/3 (D-DAY):</strong> 規劃全體人員就位，發放應援物，執行所有現場應援活動！</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(總召、公關/宣傳)</span><span class="lang-ko">(총괄, 홍보/마케팅)</span></strong> <span class="lang-zh">9/30: 規劃招募現場小幫手，並發布最終場內應援流程提醒。</span><span class="lang-ko">9/30: 현장 스태프 모집 및 최종 현장 서포트 안내 공지 계획.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(現場組、總召)</span><span class="lang-ko">(현장팀, 총괄)</span></strong> <span class="lang-zh">10/2: 預計遞交後台應援禮品與餐點；規劃場佈組領取應援物。</span><span class="lang-ko">10/2: 백스테이지 서포트 선물 및 케이터링 전달, 현장팀 물품 수령 계획.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(現場組、全體人員)</span><span class="lang-ko">(현장팀, 전체 인원)</span></strong> <span class="lang-zh">10/3 (D-DAY): 規劃全體人員就位，發放應援物，執行所有現場應援活動！</span><span class="lang-ko">10/3 (D-DAY): 전체 인원 배치, 서포트 물품 배부, 모든 현장 서포트 실행!</span></li>
                             </ul>
                         </div>
                         <div class="timeline-item">
-                            <h4 class="font-bold text-lg text-accent-dark font-serif">階段六：結案與成果回報 (活動後)</h4>
-                            <p class="text-sm text-gray-500">活動後</p>
+                            <h4 class="font-bold text-lg text-accent-dark font-serif"><span class="lang-zh">階段六：結案與成果回報 (活動後)</span><span class="lang-ko">6단계: 프로젝트 마무리 및 결과 보고 (행사 후)</span></h4>
+                            <p class="text-sm text-gray-500"><span class="lang-zh">活動後</span><span class="lang-ko">행사 후</span></p>
                              <ul class="list-disc list-inside text-gray-700 mt-2 space-y-1">
-                                <li><strong>10/6:</strong> 預計發布應援活動成功之後記與感謝文。</li>
-                                <li><strong>10/12:</strong> 預計公布完整財務明細收支表。</li>
-                                <li><strong>10/19:</strong> 規劃完成募資回饋品寄送，並處理剩餘款項。</li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(公關/宣傳)</span><span class="lang-ko">(홍보/마케팅)</span></strong> <span class="lang-zh">10/6: 預計發布應援活動成功之後記與感謝文。</span><span class="lang-ko">10/6: 서포트 성공 후기 및 감사 인사 공지 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務)</span><span class="lang-ko">(재무)</span></strong> <span class="lang-zh">10/12: 預計公布完整財務明細收支表。</span><span class="lang-ko">10/12: 전체 재무 상세 내역 보고서 공지 예정.</span></li>
+                                <li><strong class="text-accent-dark"><span class="lang-zh">(財務、現場組)</span><span class="lang-ko">(재무, 현장팀)</span></strong> <span class="lang-zh">10/19: 規劃完成募資回饋品寄送，並處理剩餘款項。</span><span class="lang-ko">10/19: 펀딩 리워드 발송 완료 및 잔액 처리 계획.</span></li>
                             </ul>
                         </div>
                     </div>
@@ -503,33 +511,66 @@
             </section>
         </div>
 
+        <!-- SECTION: Manpower Planning -->
+        <div class="print-page">
+            <section id="manpower" class="scroll-mt-20 p-0">
+                <h2 class="section-title font-serif"><span class="lang-zh">VI. 人力規劃與任務分配</span><span class="lang-ko">VI. 인력 계획 및 업무 분담</span></h2>
+                <div class="card space-y-8">
+                    <div>
+                        <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">核心管理團隊 (估算：3-4人)</span><span class="lang-ko">핵심 운영팀 (예상: 3-4명)</span></h3>
+                        <p class="mb-4 text-gray-700"><span class="lang-zh">負責企劃的統籌、決策與對外溝通，確保專案順利推進。</span><span class="lang-ko">기획 총괄, 의사 결정, 외부 소통을 담당하여 프로젝트가 원활하게 진행되도록 합니다.</span></p>
+                        <ul class="space-y-3 list-disc list-inside text-gray-700">
+                            <li><strong><span class="lang-zh">總召 (1人):</span><span class="lang-ko">총괄 (1명):</span></strong> <span class="lang-zh">專案最高負責人。對外代表團隊與主辦方、經紀公司溝通；對內協調各組工作、掌握整體進度、處理突發狀況。</span><span class="lang-ko">프로젝트 최고 책임자. 외부적으로 팀을 대표하여 주최 측, 소속사와 소통하고, 내부적으로는 각 팀의 업무를 조율하며 전체 진행 상황을 관리하고 돌발 상황에 대처합니다.</span></li>
+                            <li><strong><span class="lang-zh">財務 (1人):</span><span class="lang-ko">재무 (1명):</span></strong> <span class="lang-zh">管理募資帳戶、記錄所有收支、製作財務報表。確保資金透明化，並負責採購與付款事宜。</span><span class="lang-ko">펀딩 계좌를 관리하고, 모든 수입과 지출을 기록하며, 재무 보고서를 작성합니다. 자금의 투명성을 확보하고, 구매 및 결제 업무를 담당합니다.</span></li>
+                            <li><strong><span class="lang-zh">公關/宣傳 (1-2人):</span><span class="lang-ko">홍보/마케팅 (1-2명):</span></strong> <span class="lang-zh">負責社群平台（如X, Facebook, Instagram）的文案撰寫、公告發布、應援教學製作、回覆粉絲問題，維持團隊與粉絲間的良好互動。</span><span class="lang-ko">소셜 미디어(X, 페이스북, 인스타그램 등)의 게시물 작성, 공지 발표, 서포트 가이드 제작, 팬 문의 응대를 담당하며 팀과 팬들 간의 원활한 소통을 유지합니다.</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-accent-dark mb-3 font-serif"><span class="lang-zh">執行工作小組 (估算：5-8人，可由核心團隊兼任)</span><span class="lang-ko">실무팀 (예상: 5-8명, 핵심 운영팀 겸임 가능)</span></h3>
+                        <p class="mb-4 text-gray-700"><span class="lang-zh">負責各項應援內容的具體執行，將創意化為現實。</span><span class="lang-ko">각 서포트 내용의 구체적인 실행을 담당하여 아이디어를 현실로 만듭니다.</span></p>
+                        <ul class="space-y-3 list-disc list-inside text-gray-700">
+                            <li><strong><span class="lang-zh">設計組 (1-2人):</span><span class="lang-ko">디자인팀 (1-2명):</span></strong> <span class="lang-zh">負責手幅、募資回饋品、宣傳圖文等所有視覺設計。需熟悉設計軟體（如Photoshop, Illustrator）。</span><span class="lang-ko">슬로건, 펀딩 리워드, 홍보 이미지 등 모든 시각 디자인을 담당합니다. 포토샵, 일러스트레이터 등 디자인 소프트웨어 사용에 능숙해야 합니다.</span></li>
+                            <li><strong><span class="lang-zh">影片組 (1-2人):</span><span class="lang-ko">영상팀 (1-2명):</span></strong> <span class="lang-zh">負責應援影片的素材整理、剪輯、配樂與後製。需具備影片剪輯能力。</span><span class="lang-ko">서포트 영상의 소스 정리, 편집, 배경 음악 및 후반 작업을 담당합니다. 영상 편집 능력이 필요합니다.</span></li>
+                            <li><strong><span class="lang-zh">現場組 (3-4人):</span><span class="lang-ko">현장팀 (3-4명):</span></strong> <span class="lang-zh">活動當天的核心執行人力。負責應援物的前置分裝、現場發放、秩序維持、協助粉絲，以及後台應援物的遞交。</span><span class="lang-ko">공연 당일의 핵심 실행 인력. 서포트 물품의 사전 포장, 현장 배부, 질서 유지, 팬 안내 및 백스테이지 서포트 물품 전달을 담당합니다.</span></li>
+                        </ul>
+                    </div>
+                     <p class="mt-6 text-sm text-gray-500"><span class="lang-zh">*總計所需核心人力約 8-12 人。部分職位可互相支援，將根據最終招募情況彈性調整。</span><span class="lang-ko">*총 필요 핵심 인력은 약 8-12명입니다. 일부 직책은 서로 지원 가능하며, 최종 모집 상황에 따라 유연하게 조정될 수 있습니다.</span></p>
+                </div>
+            </section>
+        </div>
+
     </main>
 
-    <!-- SPACING OPTIMIZATION: Increased margin-top for better separation -->
     <footer class="bg-accent-light mt-20 sm:mt-24 py-12">
         <div class="max-w-6xl mx-auto text-center text-accent-dark">
-            <p class="font-bold font-serif text-xl">讓這一刻，成為永恆的香氣</p>
+            <p class="font-bold font-serif text-xl"><span class="lang-zh">讓這一刻，成為永恆的香氣</span><span class="lang-ko">이 순간이, 영원한 향기가 되기를</span></p>
             <p class="text-sm mt-4 opacity-70">© 2025 RESCENE Taipei Fan Union. All Rights Reserved.</p>
+            <p class="text-xs mt-6 opacity-60 max-w-3xl mx-auto px-4"><span class="lang-zh">本企劃書內容（包含所有文字、設計與財務規劃）屬內部機密文件，僅供合作單位審閱評估。未經本單位書面許可，嚴禁以任何形式複製、轉載、引用或對外洩露。</span><span class="lang-ko">본 기획서의 내용(모든 텍스트, 디자인, 재무 계획 포함)은 내부 기밀 문서이며, 협력사의 검토 및 평가 목적으로만 제공됩니다. 본 연합의 서면 허가 없이는 어떠한 형태로든 복제, 전재, 인용 또는 외부에 내용을 유출하는 것을 엄격히 금지합니다.</span></p>
         </div>
     </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Chart.js initialization
+            const translations = {
+                zh: {
+                    title: '2025 RESCENE 1st FAN-CON in TAIPEI [RE:MIND] 應援企劃書',
+                    chartLabels: ['後台支援', '現場應援物', '募資回饋品', '行政雜支']
+                },
+                ko: {
+                    title: '2025 RESCENE 1st FAN-CON in TAIPEI [RE:MIND] 서포트 기획서',
+                    chartLabels: ['백스테이지 서포트', '현장 서포트 물품', '펀딩 리워드', '행정 및 기타 비용']
+                }
+            };
+            
             const chartCtx = document.getElementById('budgetChart').getContext('2d');
             const budgetChart = new Chart(chartCtx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['後台支援', '現場應援物', '募資回饋品', '行政雜支'],
+                    labels: translations.zh.chartLabels,
                     datasets: [{
                         label: '預算分配',
-                        data: [41.7, 22.5, 25, 10.8], // 25000, 13500, 15000, 6500 -> 60000 total
-                        backgroundColor: [
-                            '#A08FB0',
-                            '#B8A9C9',
-                            '#D9D1E0',
-                            '#E9E3ED'
-                        ],
+                        data: [41.7, 22.5, 25, 10.8],
+                        backgroundColor: ['#A08FB0', '#B8A9C9', '#D9D1E0', '#E9E3ED'],
                         borderColor: '#F5F3F7',
                         borderWidth: 4,
                         hoverOffset: 8
@@ -544,7 +585,7 @@
                             labels: {
                                 color: '#4A4A4A',
                                 font: {
-                                    family: "'Noto Sans TC', sans-serif",
+                                    family: "'Noto Sans TC', 'Noto Sans KR', sans-serif",
                                     size: 14
                                 }
                             }
@@ -568,26 +609,43 @@
                 }
             });
             
-            // Mobile menu toggle
+            const langButtons = document.querySelectorAll('.lang-btn');
+            const htmlEl = document.documentElement;
+
+            function switchLanguage(lang) {
+                htmlEl.lang = lang === 'zh' ? 'zh-Hant' : 'ko';
+                document.title = translations[lang].title;
+                budgetChart.data.labels = translations[lang].chartLabels;
+                budgetChart.update();
+                langButtons.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+            }
+
+            langButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchLanguage(btn.dataset.lang);
+                });
+            });
+
+            switchLanguage('zh');
+
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const mobileMenu = document.getElementById('mobile-menu');
             mobileMenuButton.addEventListener('click', () => {
                 mobileMenu.classList.toggle('hidden');
             });
 
-            // Smooth scroll and active link highlighting
             const navLinks = document.querySelectorAll('.nav-link');
-            const sections = document.querySelectorAll('main section[id]');
             const navbar = document.getElementById('navbar');
             const navHeight = navbar.offsetHeight;
 
             function setActiveLink() {
                 let current = '';
-                // Adjust the target element for intersection observer
                 const mainSections = document.querySelectorAll('.print-page > section[id]');
                 mainSections.forEach(section => {
                     const sectionTop = section.closest('.print-page').offsetTop;
-                    if (pageYOffset >= sectionTop - navHeight - 50) {
+                    if (window.pageYOffset >= sectionTop - navHeight - 50) {
                         current = section.getAttribute('id');
                     }
                 });
@@ -607,7 +665,6 @@
                     link.addEventListener('click', (e) => {
                         e.preventDefault();
                         const targetId = link.getAttribute('data-target');
-                        // Find the wrapper .print-page for the target section
                         const targetSection = document.getElementById(targetId);
                         const targetElement = targetSection ? targetSection.closest('.print-page') : null;
                         
