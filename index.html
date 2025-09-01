@@ -112,6 +112,18 @@
                 padding-top: 0 !important;
                 width: 100%;
                 height: auto;
+                background: none !important; /* Remove background from body */
+            }
+
+            /* Add a fixed pseudo-element to act as the background for each page */
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: -1;
                 background-color: #F5F3F7 !important;
                 background-image: radial-gradient(circle at top left, rgba(233, 227, 237, 0.8) 0%, transparent 40%), radial-gradient(circle at bottom right, rgba(217, 209, 224, 0.7) 0%, transparent 50%) !important;
                 -webkit-print-color-adjust: exact !important;
@@ -136,6 +148,7 @@
                 backdrop-filter: blur(12px) !important;
                 -webkit-backdrop-filter: blur(12px) !important;
                 margin-bottom: 0;
+                page-break-inside: avoid;
             }
             
             .section-title, h1, h2, h3, h4, p, li, span, strong, .text-accent-dark, .text-gray-700, .text-gray-600, .text-gray-800, .text-gray-500, .text-accent {
@@ -167,10 +180,6 @@
             
             .print-page:not(#cover-page) {
                 page-break-before: always;
-            }
-            
-            .timeline-item {
-                page-break-inside: avoid;
             }
         }
     </style>
@@ -251,7 +260,7 @@
                 <div class="card">
                     <h3 class="text-2xl font-bold text-accent-dark mb-4 font-serif"><span class="lang-zh">核心概念：以香氣喚醒，以回憶連結</span><span class="lang-ko">핵심 컨셉: 향기로 깨우고, 추억으로 연결하다</span></h3>
                     <p class="text-lg leading-relaxed text-gray-800">
-                        <span class="lang-zh">本次應援企劃的核心願景，不僅是為 RESCENE 首次台北 FAN-CON 提供支持，更是要將活動打造成一場深刻的、多感官的「普魯斯特效應」體驗。企劃將緊密圍繞 RESCENE 的核心概念——「香氣 (Scent)」與「場景 (Scene)」，並與 FAN-CON 主題「RE:MIND」及粉絲名「REMINE」進行深度連結。我們的目標是將粉絲的愛與支持，轉化為一種獨特、溫暖、專屬於台北的「香氣」，讓 RESCENE 在踏上舞台的每一刻，都能聞到、看到、感受到這份深刻的連結，共同創造一個在未來能不斷被「RE:MIND」的完美場景。</span>
+                        <span class="lang-zh">本次應援企劃的核心願景，不僅是為 RESCENE 首次台北 FAN-CON 提供支持，更是要將活動打造成一場深刻的、多感官的「普魯斯特效應」體驗。企劃將緊密圍繞 RESCENE の核心概念——「香氣 (Scent)」與「場景 (Scene)」，並與 FAN-CON 主題「RE:MIND」及粉絲名「REMINE」進行深度連結。我們的目標是將粉絲的愛與支持，轉化為一種獨特、溫暖、專屬於台北的「香氣」，讓 RESCENE 在踏上舞台的每一刻，都能聞到、看到、感受到這份深刻的連結，共同創造一個在未來能不斷被「RE:MIND」的完美場景。</span>
                         <span class="lang-ko">이번 서포트 기획의 핵심 비전은 RESCENE의 첫 타이베이 팬콘을 지원하는 것뿐만 아니라, 행사를 깊이 있고 다감각적인 '프루스트 효과' 체험으로 만드는 것입니다. 기획은 RESCENE의 핵심 컨셉인 '향기(Scent)'와 '장면(Scene)'을 중심으로, 팬콘 주제인 'RE:MIND' 및 팬덤명 'REMINE'과 깊이 연결됩니다. 저희의 목표는 팬들의 사랑과 지지를 독특하고 따뜻하며 타이베이만의 '향기'로 전환하여, RESCENE이 무대에 오르는 모든 순간에 이 깊은 연결을 맡고, 보고, 느끼며, 미래에 계속해서 'RE:MIND'될 수 있는 완벽한 장면을 함께 만드는 것입니다.</span>
                     </p>
                 </div>
